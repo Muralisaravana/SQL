@@ -96,5 +96,11 @@ WHERE e1.salary > (
 | Performance | Faster                                            | Slower                                                     |
 | Example use | Compare to a single value (e.g., overall average) | Compare to group-specific value (e.g., department average) |
 
+Why do we use GROUP BY before HAVING in SQL?
+Because HAVING filters groups, not rows —
+and groups don’t exist until after GROUP BY has been executed.
+So you must first form groups (GROUP BY)
+👉 then filter them (HAVING).
+
 
 
