@@ -1,0 +1,100 @@
+What is Aggregation?
+Aggregation means combining multiple rows of data into a single summary row, usually using aggregate functions like:
+| Function  | Description            | Example       |
+| --------- | ---------------------- | ------------- |
+| `COUNT()` | Counts number of rows  | `COUNT(*)`    |
+| `SUM()`   | Adds up numeric values | `SUM(salary)` |
+| `AVG()`   | Finds average          | `AVG(salary)` |
+| `MIN()`   | Finds smallest value   | `MIN(salary)` |
+| `MAX()`   | Finds largest value    | `MAX(salary)` |
+
+👉 You use them with GROUP BY when you want summary results per group (like per department, per month, etc.).
+
+Example:
+SELECT 
+  COUNT(*) AS total_employees,
+  SUM(salary) AS total_salary,
+  AVG(salary) AS avg_salary
+FROM employees;
+
+GROUP BY:
+is used in SQL to group rows that have the same values in one or more columns.
+Example:
+SELECT dept_id,
+       COUNT(*) AS emp_count,
+       AVG(salary) AS avg_salary
+FROM employees
+GROUP BY dept_id;
+
+SELECT dept_id, job_title, COUNT(*) AS emp_count
+FROM employees
+GROUP BY dept_id, job_title;
+
+
+Filtering Aggregated Results — HAVING
+The WHERE clause filters rows before grouping,
+but HAVING filters after grouping.
+
+| Clause   | Works On        | Used To Filter  |
+| -------- | --------------- | --------------- |
+| `WHERE`  | Individual rows | Before grouping |
+| `HAVING` | Grouped rows    | After grouping  |
+
+-- WHERE filters rows first
+-- HAVING filters aggregated groups
+SELECT dept_id, COUNT(*) AS emp_count
+FROM employees
+WHERE salary > 40000
+GROUP BY dept_id
+HAVING COUNT(*) > 1;
+
+| Concept            | Example                     | Purpose               |
+| ------------------ | --------------------------- | --------------------- |
+| Aggregate all rows | `AVG(salary)`               | Get one summary row   |
+| Grouping           | `GROUP BY dept_id`          | Summarize per group   |
+| Filtering groups   | `HAVING AVG(salary)>60000`  | Filter after grouping |
+| Sort aggregates    | `ORDER BY SUM(salary)`      | Sort summaries        |
+| Unique count       | `COUNT(DISTINCT dept_id)`   | Count unique          |
+| Group expressions  | `CASE WHEN` inside GROUP BY | Custom grouping       |
+
+GROUP BY vs DISTINCT:
+| Feature                               | `DISTINCT`                 | `GROUP BY`                                        |
+| ------------------------------------- | -------------------------- | ------------------------------------------------- |
+| Purpose                               | Removes duplicate rows     | Groups rows to perform **aggregate calculations** |
+| Can use aggregates (SUM, COUNT, AVG)? | ❌ No                       | ✅ Yes                                          |
+| Output                                | Only unique combinations   | One row per group                                 |
+| Keyword position                      | Comes right after `SELECT` | Comes after `WHERE`                               |
+
+Correlated vs Non-Correlated Subquery:
+Non-Correlated Subquery
+The inner query runs once independently.
+Its result is used by the outer query
+Example:
+SELECT name, salary
+FROM employees
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+);
+
+Correlated Subquery
+The inner query depends on the outer query.
+It runs once for every row of the outer query.
+Example:
+SELECT e1.name, e1.salary
+FROM employees e1
+WHERE e1.salary > (
+    SELECT AVG(e2.salary)
+    FROM employees e2
+    WHERE e2.department = e1.department
+);
+
+| Feature     | Non-Correlated Subquery                           | Correlated Subquery                                        |
+| ----------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| Execution   | Inner query runs **once**                         | Inner query runs **for every row** of outer query          |
+| Dependency  | Independent                                       | Depends on outer query’s column                            |
+| Performance | Faster                                            | Slower                                                     |
+| Example use | Compare to a single value (e.g., overall average) | Compare to group-specific value (e.g., department average) |
+
+
+
