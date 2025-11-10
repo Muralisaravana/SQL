@@ -1,0 +1,53 @@
+What Are Window Functions?
+A Window Function performs a calculation across a set of rows related to the current row,
+without collapsing them into a single summary row (like GROUP BY does).
+
+👉 In simple words:
+It lets you do things like ranking, running totals, moving averages, comparing with previous row, etc.,
+while keeping all rows visible.
+
+SYNTAX:
+function_name(expression)
+OVER (
+  [PARTITION BY column]
+  [ORDER BY column]
+)
+
+| Keyword          | Meaning                                          |
+| ---------------- | ------------------------------------------------ |
+| **PARTITION BY** | Defines how rows are grouped for the calculation |
+| **ORDER BY**     | Defines the order of rows within each group      |
+| **OVER()**       | Creates the “window” of rows to look at          |
+
+| Concept                                              | One-Liner Explanation                                                                                      |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Definition**                                       | Performs calculations across a **set of related rows (window)** without collapsing them into a single row. |
+| **Syntax**                                           | `function_name(column) OVER (PARTITION BY ... ORDER BY ...)`                                               |
+| **PARTITION BY**                                     | Divides data into **groups (windows)** — like `GROUP BY`, but without reducing rows.                       |
+| **ORDER BY (inside OVER)**                           | Defines the **sequence** in which the window function is applied within each partition.                    |
+| **ROW_NUMBER()**                                     | Assigns a **unique sequential number** to each row in a partition.                                         |
+| **RANK()**                                           | Gives rank with **gaps** when there are ties. (e.g., 1, 2, 2, 4)                                           |
+| **DENSE_RANK()**                                     | Gives rank **without gaps** for ties. (e.g., 1, 2, 2, 3)                                                   |
+| **NTILE(n)**                                         | Divides rows into **n equal parts** and assigns a bucket number (e.g., quartiles, deciles).                |
+| **LAG(column, offset)**                              | Accesses **previous row’s value** within the same partition.                                               |
+| **LEAD(column, offset)**                             | Accesses **next row’s value** within the same partition.                                                   |
+| **FIRST_VALUE()**                                    | Returns the **first value** in the ordered window.                                                         |
+| **LAST_VALUE()**                                     | Returns the **last value** in the ordered window.                                                          |
+| **NTH_VALUE(column, n)**                             | Returns the **nᵗʰ value** in the ordered window.                                                           |
+| **SUM() OVER(...)**                                  | Computes **running or total sum** across rows, keeping all rows visible.                                   |
+| **AVG() OVER(...)**                                  | Computes **moving or cumulative average** within the window.                                               |
+| **COUNT() OVER(...)**                                | Counts rows per partition or cumulatively.                                                                 |
+| **Window Frame (ROWS/RANGE)**                        | Defines the **exact subset** of rows the function looks at (e.g., last 3 rows).                            |
+| **ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW** | Calculates **cumulative total up to current row**.                                                         |
+| **ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING**         | Calculates a **moving window** around the current row.                                                     |
+| **OVER () (empty)**                                  | Applies the function to **all rows (entire dataset)** — no partitioning or ordering.                       |
+| **WITH TIES (in ranking)**                           | Keeps rows with the **same rank value** together.                                                          |
+| **Difference from GROUP BY**                         | `GROUP BY` reduces rows → `Window functions` **retain all rows** while adding extra info.                  |
+
+
+| Category                                          | Examples                                                                  | One-Liner Explanation                                                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **1️⃣ Ranking Functions**                         | `ROW_NUMBER()`, `RANK()`, `DENSE_RANK()`, `NTILE(n)`                      | Assign **rank or order position** to each row within its partition.                            |
+| **2️⃣ Aggregate Functions (as Window Functions)** | `SUM()`, `AVG()`, `COUNT()`, `MIN()`, `MAX()`                             | Compute **running totals, moving averages, or cumulative aggregates** without collapsing rows. |
+| **3️⃣ Value Functions**                           | `LAG()`, `LEAD()`, `FIRST_VALUE()`, `LAST_VALUE()`, `NTH_VALUE()`         | Access **values from other rows** within the same partition (previous, next, or specific).     |
+| **4️⃣ Statistical / Distribution Functions**      | `CUME_DIST()`, `PERCENT_RANK()`, `PERCENTILE_CONT()`, `PERCENTILE_DISC()` | Calculate **relative positions or percentiles** within a partition.                            |
