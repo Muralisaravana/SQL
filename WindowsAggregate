@@ -1,0 +1,23 @@
+Aggregate Window Functions
+Used to calculate running totals, moving averages, or cumulative statistics across a “window” of rows — without collapsing them into one row
+
+| Need                                          | Use               |
+| --------------------------------------------- | ----------------- |
+| To track a **running total (cumulative sum)** | `SUM()`           |
+| To find a **moving or cumulative average**    | `AVG()`           |
+| To count **how many rows processed so far**   | `COUNT()`         |
+| To check **smallest or largest value so far** | `MIN()` / `MAX()` |
+
+
+
+| Function    | One-liner                                                            | Example Query                                                                                                                            |
+| ----------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **SUM()**   | Calculates a **running or cumulative total** across rows.            | `sql SELECT name, department, salary, SUM(salary) OVER (PARTITION BY department ORDER BY salary) AS running_total FROM employee_bonus; ` |
+| **AVG()**   | Calculates a **moving or cumulative average** within each partition. | `sql SELECT name, department, salary, AVG(salary) OVER (PARTITION BY department ORDER BY salary) AS running_avg FROM employee_bonus; `   |
+| **COUNT()** | Shows a **running count** of rows up to the current one.             | `sql SELECT name, department, COUNT(*) OVER (PARTITION BY department ORDER BY salary) AS running_count FROM employee_bonus; `            |
+| **MIN()**   | Returns the **minimum value seen so far** in the ordered window.     | `sql SELECT name, department, salary, MIN(salary) OVER (PARTITION BY department ORDER BY salary) AS min_so_far FROM employee_bonus; `    |
+| **MAX()**   | Returns the **maximum value seen so far** in the ordered window.     | `sql SELECT name, department, salary, MAX(salary) OVER (PARTITION BY department ORDER BY salary) AS max_so_far FROM employee_bonus; `    |
+
+
+Add a window frame for more control
+ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW -->“from the first row in this partition up to the current one.”
