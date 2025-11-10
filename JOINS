@@ -1,0 +1,41 @@
+What is a JOIN?
+A JOIN is used to combine rows from two or more tables based on a related column between them (usually a key relationship).
+
+TYPES OF JOINS:
+| Type           | Description                                                |
+| -------------- | ---------------------------------------------------------- |
+| **INNER JOIN** | Returns only matching rows in both tables                  |
+| **LEFT JOIN**  | Returns all rows from left table + matched rows from right |
+| **RIGHT JOIN** | Returns all rows from right table + matched rows from left |
+| **FULL JOIN**  | Returns all rows when there’s a match in either table      |
+| **CROSS JOIN** | Returns all possible combinations (cartesian product)      |
+| **SELF JOIN**  | Joins a table to itself                                    |
+
+
+LEFT JOIN / RIGHT JOIN : Missing matches show NULLs
+
+FULL JOIN (a.k.a FULL OUTER JOIN): Combines results of LEFT + RIGHT JOIN — shows all records from both tables with NULLs for missing matches.
+
+CROSS JOINS: Returns all combinations of both tables (Cartesian product).
+Be careful — output rows = (rows in A × rows in B)
+
+USING Keyword
+If column names are identical, you can simplify ON clause using USING().
+
+SELECT e.emp_name, d.dept_name
+FROM employees e
+JOIN departments d
+USING (dept_id);
+
+Above code is same as:
+ON e.dept_id = d.dept_id
+
+
+| Join Type  | Description                        | NULL Behavior               |
+| ---------- | ---------------------------------- | --------------------------- |
+| INNER JOIN | Only matching rows                 | Excludes non-matching       |
+| LEFT JOIN  | All from left + matches from right | NULL for missing right rows |
+| RIGHT JOIN | All from right + matches from left | NULL for missing left rows  |
+| FULL JOIN  | All from both sides                | NULL on either side         |
+| CROSS JOIN | All combinations                   | No condition                |
+| SELF JOIN  | Table joins itself                 | Uses alias to differentiate |
