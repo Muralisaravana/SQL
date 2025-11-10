@@ -1,0 +1,75 @@
+1.WHERE Clause — Filter rows:
+Syntax:
+SELECT column_list
+FROM table_name
+WHERE condition;
+
+Used to filter records based on a given condition.
+It executes before any grouping or ordering happens.
+
+Example:
+SELECT emp_name, salary
+FROM employees
+WHERE salary > 50000;
+
+Comparison Operators in WHERE:
+| Operator     | Meaning       | Example                                |
+| ------------ | ------------- | -------------------------------------- |
+| =            | Equal to      | `WHERE dept_id = 10`                   |
+| != or <>     | Not equal to  | `WHERE dept_id <> 10`                  |
+| >, <, >=, <= | Comparison    | `WHERE salary >= 60000`                |
+| BETWEEN      | Range         | `WHERE salary BETWEEN 40000 AND 80000` |
+| IN           | Matches list  | `WHERE dept_id IN (10, 20, 30)`        |
+| LIKE         | Pattern match | `WHERE emp_name LIKE 'A%'`             |
+| IS NULL      | Check null    | `WHERE manager_id IS NULL`             |
+
+Examples:
+-- Salary between 50K and 80K
+SELECT emp_name, salary
+FROM employees
+WHERE salary BETWEEN 50000 AND 80000;
+
+-- Names starting with 'J'
+SELECT emp_name
+FROM employees
+WHERE emp_name LIKE 'J%';
+
+-- Dept 10 or 20
+SELECT emp_name, dept_id
+FROM employees
+WHERE dept_id IN (10, 20);
+
+Logical Operators:
+| Operator | Usage                        |
+| -------- | ---------------------------- |
+| AND      | Both conditions must be true |
+| OR       | Either condition true        |
+| NOT      | Negates condition            |
+
+Example(AND):
+SELECT emp_name, salary
+FROM employees
+WHERE dept_id = 10 
+  AND salary > 60000;
+
+(OR):
+SELECT * 
+FROM employees
+WHERE department = 'IT' OR city = 'Chicago';
+
+(NOT):
+SELECT * 
+FROM employees
+WHERE NOT department = 'IT';
+
+
+DISTINCT:
+-Remove duplicates
+-DISTINCT applies to entire selected columns combination.
+Example:
+SELECT DISTINCT dept_id
+FROM employees;
+
+
+
+
