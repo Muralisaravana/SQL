@@ -1,0 +1,63 @@
+ORDER BY Clause — Sort rows
+Sorts output ascending (ASC) or descending (DESC).
+
+Syntax:
+SELECT column_list
+FROM table_name
+ORDER BY column_name [ASC|DESC];
+
+Example:
+SELECT emp_name, salary
+FROM employees
+ORDER BY salary DESC;
+
+ORDER BY Multiple Columns:
+SELECT emp_name, dept_id, salary
+FROM employees
+ORDER BY dept_id ASC, salary DESC;
+
+COMBINING WHERE and SORT:
+SELECT emp_name, salary
+FROM employees
+WHERE salary > 50000
+ORDER BY salary DESC;
+
+LIMIT/FETCHING:
+Returns top 5 highest-paid employees
+SELECT emp_name, salary
+FROM employees
+ORDER BY salary DESC
+LIMIT 5;
+
+USAGE OF ALIAS IN SORTING AND FILTERING:
+SELECT emp_name, salary * 12 AS annual_salary
+FROM employees
+WHERE salary * 12 > 600000
+ORDER BY annual_salary DESC;
+
+ORDER OF SQL Execution:
+| Step | Clause   | Description         |
+| ---- | -------- | ------------------- |
+| 1    | FROM     | Get data from table |
+| 2    | WHERE    | Filter rows         |
+| 3    | GROUP BY | Group rows          |
+| 4    | HAVING   | Filter groups       |
+| 5    | SELECT   | Select columns      |
+| 6    | ORDER BY | Sort rows           |
+| 7    | LIMIT    | Restrict output     |
+
+This explains why you can’t use column aliases in WHERE — they’re created after WHERE executes.
+
+
+| Clause         | Purpose            | Example                             |
+| -------------- | ------------------ | ----------------------------------- |
+| WHERE          | Filter rows        | `WHERE salary > 50000`              |
+| AND / OR / NOT | Combine conditions | `WHERE dept_id=10 AND salary>60000` |
+| BETWEEN        | Range filter       | `WHERE salary BETWEEN 40K AND 80K`  |
+| IN             | Match list         | `WHERE dept_id IN (10,20)`          |
+| LIKE           | Pattern match      | `WHERE emp_name LIKE 'A%'`          |
+| IS NULL        | Check nulls        | `WHERE manager_id IS NULL`          |
+| DISTINCT       | Remove duplicates  | `SELECT DISTINCT dept_id`           |
+| ORDER BY       | Sort rows          | `ORDER BY salary DESC`              |
+| LIMIT / TOP    | Restrict count     | `LIMIT 5`                           |
+
