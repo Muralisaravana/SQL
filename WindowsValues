@@ -1,0 +1,19 @@
+Value Window Functions
+Used to access values from other rows (previous, next, or specific) within the same partition — without using joins or subqueries.
+
+| Use Case                               | Function        |
+| -------------------------------------- | --------------- |
+| Compare a row to the **previous** one  | `LAG()`         |
+| Compare a row to the **next** one      | `LEAD()`        |
+| Get the **first value** in a partition | `FIRST_VALUE()` |
+| Get the **last value** in a partition  | `LAST_VALUE()`  |
+| Get the **nth ranked** value           | `NTH_VALUE()`   |
+
+
+| Function                 | One-liner                                                                        | Example Query                                                                                                                                                                                                           |
+| ------------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **LAG(column, offset)**  | Fetches the **previous row’s value** (based on order) within the same partition. | `sql SELECT name, department, salary, LAG(salary, 1) OVER (PARTITION BY department ORDER BY salary) AS prev_salary FROM employee_bonus; `                                                                               |
+| **LEAD(column, offset)** | Fetches the **next row’s value** within the same partition.                      | `sql SELECT name, department, salary, LEAD(salary, 1) OVER (PARTITION BY department ORDER BY salary) AS next_salary FROM employee_bonus; `                                                                              |
+| **FIRST_VALUE(column)**  | Returns the **first value** in the ordered partition.                            | `sql SELECT name, department, salary, FIRST_VALUE(salary) OVER (PARTITION BY department ORDER BY salary DESC) AS highest_salary FROM employee_bonus; `                                                                  |
+| **LAST_VALUE(column)**   | Returns the **last value** in the ordered partition (depends on window frame).   | `sql SELECT name, department, salary, LAST_VALUE(salary) OVER (PARTITION BY department ORDER BY salary DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS lowest_salary FROM employee_bonus; `           |
+| **NTH_VALUE(column, n)** | Returns the **nᵗʰ ordered value** within the partition.                          | `sql SELECT name, department, salary, NTH_VALUE(salary, 2) OVER (PARTITION BY department ORDER BY salary DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS second_highest_salary FROM employee_bonus; ` |
