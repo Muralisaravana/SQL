@@ -1,0 +1,35 @@
+Statistical / Distribution Window Functions
+These functions are used to calculate percentiles, relative ranks, and cumulative distributions of rows within a partition — very common in reporting,
+ML feature generation, and analytics dashboards.
+
+| Use Case                                                              | Function            |
+| --------------------------------------------------------------------- | ------------------- |
+| Find **cumulative rank position** (like “Top 80% of employees”)       | `CUME_DIST()`       |
+| Find **relative rank between 0 and 1** (normalized position)          | `PERCENT_RANK()`    |
+| Find **exact salary at 90th percentile** (with decimal interpolation) | `PERCENTILE_CONT()` |
+| Find **actual salary that sits at the 90th percentile point**         | `PERCENTILE_DISC()` |
+
+
+| Function               | One-liner                                                                                          | Example Query                                                                                                                                |
+| ---------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **CUME_DIST()**        | Calculates the **cumulative distribution** — the proportion of rows with values ≤ the current row. | `sql SELECT name, department, salary, CUME_DIST() OVER (PARTITION BY department ORDER BY salary) AS cume_distribution FROM employee_bonus; ` |
+| **PERCENT_RANK()**     | Computes the **relative rank (0–1)** of a row within its partition.                                | `sql SELECT name, department, salary, PERCENT_RANK() OVER (PARTITION BY department ORDER BY salary) AS percent_rank FROM employee_bonus; `   |
+| **PERCENTILE_CONT(p)** | Returns the **continuous percentile value** (interpolates between values).                         | `sql SELECT department, PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY salary) AS p90_salary FROM employee_bonus GROUP BY department; `         |
+| **PERCENTILE_DISC(p)** | Returns the **discrete percentile value** (actual data point, not interpolated).                   | `sql SELECT department, PERCENTILE_DISC(0.9) WITHIN GROUP (ORDER BY salary) AS p90_salary FROM employee_bonus GROUP BY department; `         |
+
+RealWorld Sceanrios:
+| Domain       | Example                                                 | Function               |
+| ------------ | ------------------------------------------------------- | ---------------------- |
+| HR Analytics | Identify **top 10% earners** in each department         | `PERCENTILE_CONT(0.9)` |
+| Sales        | Find **top 20% performing regions** by revenue          | `CUME_DIST()`          |
+| Finance      | Calculate **relative portfolio performance percentile** | `PERCENT_RANK()`       |
+| Education    | Compute **student marks percentile ranks**              | `PERCENTILE_DISC()`    |
+
+Layman Analogy:
+CUME_DIST() → “How many students scored less than or equal to me?”
+PERCENT_RANK() → “What’s my relative position between 0 and 1?”
+PERCENTILE_CONT(0.9) → “What is the mark at 90th percentile (possibly in-between two marks)?”
+PERCENTILE_DISC(0.9) → “Who is the student at 90th percentile (actual score)?”
+
+
+Real
