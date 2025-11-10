@@ -1,0 +1,121 @@
+Core Concepts:
+
+DDL: CREATE, ALTER, DROP,TRUNCATE
+DML: SELECT, INSERT, UPDATE, DELETE
+DCL: GRANT, REVOKE
+TCL: COMMIT, ROLLBACK, SAVEPOINT
+
+Data Definition Language(DDL):
+| Command      | One-liner usage                                                                      |
+| ------------ | ------------------------------------------------------------------------------------ |
+| **CREATE**   | Used to create new database objects like tables, views, or indexes.                  |
+| **ALTER**    | Used to modify the structure of an existing table (add, modify, or drop columns).    |
+| **DROP**     | Used to permanently delete a database object (table, view, etc.) including its data. |
+| **TRUNCATE** | Used to quickly remove all rows from a table but keep its structure intact.          |
+
+1.CREATE:
+CREATE TABLE employees (
+  emp_id INT PRIMARY KEY,
+  emp_name VARCHAR(50),
+  dept_id INT,
+  salary DECIMAL(10,2)
+);
+
+
+2.ALTER:
+Adding One Column:
+ALTER TABLE employees
+ADD COLUMN hire_date DATE;
+
+Adding Multiple Columns:
+ALTER TABLE employees
+ADD (email VARCHAR(50), phone VARCHAR(15));
+
+Modify existing column:
+ALTER TABLE employees
+MODIFY COLUMN emp_name VARCHAR(100);
+
+Rename Column:
+ALTER TABLE employees
+RENAME COLUMN emp_name TO employee_name;
+
+Drop Column:
+ALTER TABLE employees
+DROP COLUMN hire_date;
+
+Rename Table:
+ALTER TABLE employees
+DROP COLUMN hire_date;
+
+
+
+3.DROP:
+DROP TABLE employees;
+
+4.TRUNCATE:
+TRUNCATE TABLE employees;
+
+Data Manipulation Language(DML):
+| Command    | One-liner usage                                                 |
+| ---------- | --------------------------------------------------------------- |
+| **SELECT** | Used to retrieve data from one or more tables.                  |
+| **INSERT** | Used to add new records (rows) into a table.                    |
+| **UPDATE** | Used to modify existing data in a table.                        |
+| **DELETE** | Used to remove specific rows from a table based on a condition. |
+
+1.SELECT:
+SELECT emp_name, salary 
+FROM employees
+WHERE dept_id = 10;
+
+2.INSERT:
+INSERT INTO employees (emp_id, emp_name, dept_id, salary)
+VALUES (101, 'John Doe', 10, 55000);
+
+3.UPDATE:
+UPDATE employees
+SET salary = salary + 5000
+WHERE dept_id = 10;
+
+4.DELETE:
+DELETE FROM employees
+WHERE emp_id = 101;
+
+DATA CONTROL LANGUAGE(DCL):
+| Command    | One-liner usage                                                                |
+| ---------- | ------------------------------------------------------------------------------ |
+| **GRANT**  | Used to give user permissions to perform specific actions on database objects. |
+| **REVOKE** | Used to remove previously granted permissions from a user.                     |
+
+1.GRANT:
+GRANT SELECT, INSERT ON employees TO user_murali;
+
+2.REVOKE:
+REVOKE INSERT ON employees FROM user_murali;
+
+
+TRANSACTION CONTROL LANGUAGE(TCL):
+| Command       | One-liner usage                                                               |
+| ------------- | ----------------------------------------------------------------------------- |
+| **COMMIT**    | Used to permanently save all changes made in the current transaction.         |
+| **ROLLBACK**  | Used to undo changes made in the current transaction before commit.           |
+| **SAVEPOINT** | Used to set a point within a transaction to roll back to partially if needed. |
+
+1.COMMIT:
+BEGIN;
+UPDATE employees SET salary = salary + 2000 WHERE dept_id = 20;
+COMMIT;
+
+2.ROLLBACK:
+BEGIN;
+DELETE FROM employees WHERE dept_id = 30;
+ROLLBACK;
+
+3.SAVEPOINT:
+BEGIN;
+UPDATE employees SET salary = salary + 1000 WHERE dept_id = 10;
+SAVEPOINT sp1;
+UPDATE employees SET salary = salary + 2000 WHERE dept_id = 20;
+ROLLBACK TO sp1;
+COMMIT;
+
