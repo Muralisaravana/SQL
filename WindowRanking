@@ -1,0 +1,17 @@
+Ranking Function:
+Used to assign a rank or position to each row within a partition (logical group).
+
+| Function           | When to Use                                                                                 | Real-world Example                                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`ROW_NUMBER()`** | When you just need a **unique sequence** for each row, even if values are tied.             | ✅ Pick the **top 3 earners** in each department (no ties allowed). <br>→ Use `ROW_NUMBER()` because you want *exactly 3 rows*, not 4 if there’s a tie. |
+| **`RANK()`**       | When you want **ranking with gaps** — ties get the same rank, and next rank is skipped.     | ✅ Find **employee rankings by salary** (with fair tie ranking). <br>→ If two people have the same salary, both get rank 2, next gets rank 4.           |
+| **`DENSE_RANK()`** | When you want **ranking without gaps** — ties share rank, but the next rank is consecutive. | ✅ Assign **performance ranks** for bonus bands. <br>→ If two employees share rank 2, next rank is 3 (no gap).                                          |
+| **`NTILE(n)`**     | When you need to **divide rows into groups or percentiles**.                                | ✅ Split customers into **4 quartiles** or **10 deciles** based on total purchase. <br>→ Each row gets a bucket number (1–4, or 1–10).                  |
+
+
+| Function         | One-liner                                                                          | Example query                                                                                                                   |
+| ---------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **ROW_NUMBER()** | Gives a **unique sequence number** to each row in a partition.                     | `sql SELECT name, salary, ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_num FROM employee_bonus; `    |
+| **RANK()**       | Assigns rank; **ties get same rank**, and **next rank is skipped**.                | `sql SELECT name, salary, RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_no FROM employee_bonus; `          |
+| **DENSE_RANK()** | Like `RANK()` but **no gaps** after ties.                                          | `sql SELECT name, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dense_rank FROM employee_bonus; ` |
+| **NTILE(n)**     | Splits rows into **n roughly equal buckets** and labels each with a bucket number. | `sql SELECT name, salary, NTILE(4) OVER (ORDER BY salary DESC) AS quartile FROM employee_bonus; `                               |
