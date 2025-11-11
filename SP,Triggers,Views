@@ -1,0 +1,114 @@
+STORED PROCEDURE (SP):
+A Stored Procedure is a saved SQL block that performs a set of operations and can be executed repeatedly using a single call.
+Syntax:
+CREATE PROCEDURE procedure_name (IN param1 datatype, OUT param2 datatype)
+BEGIN
+   -- SQL statements
+END;
+
+CALL procedure_name(value, @out_param);
+
+TRIGGER
+A Trigger is an automatic action executed by the database in response to an event (INSERT, UPDATE, or DELETE).
+
+Syntax:
+CREATE TRIGGER trigger_name
+BEFORE INSERT ON table_name
+FOR EACH ROW
+BEGIN
+   -- action to perform
+END;
+
+Types of Triggers:
+| Type              | Triggered when        |
+| ----------------- | --------------------- |
+| **BEFORE INSERT** | Before inserting data |
+| **AFTER INSERT**  | After inserting data  |
+| **BEFORE UPDATE** | Before updating       |
+| **AFTER UPDATE**  | After updating        |
+| **BEFORE DELETE** | Before deleting       |
+| **AFTER DELETE**  | After deleting        |
+
+
+VIEW:
+A View is a virtual table based on the result of a SQL query — used to simplify, secure, or reuse complex queries.
+
+Syntax:
+CREATE VIEW view_name AS
+SELECT column1, column2
+FROM table_name
+WHERE condition;
+
+-- To query
+SELECT * FROM view_name;
+
+-- To remove
+DROP VIEW view_name;
+
+Types:
+| Type             | Description                       |
+| ---------------- | --------------------------------- |
+| **Simple View**  | Based on a single table           |
+| **Complex View** | Based on multiple tables or joins |
+
+Function:
+FUNCTION (User-Defined Function - UDF)
+A Function is a stored program that returns a single value and can be used inside SQL expressions.
+
+| Type                      | Description                                          |
+| ------------------------- | ---------------------------------------------------- |
+| **Scalar Function**       | Returns a single value                               |
+| **Table-Valued Function** | Returns a result set (supported in SQL Server, etc.) |
+
+CONSTRAINTS:
+Constraints enforce rules on data in tables to maintain data integrity and accuracy.
+
+| Constraint      | Purpose                                   | Example                                           |
+| --------------- | ----------------------------------------- | ------------------------------------------------- |
+| **PRIMARY KEY** | Uniquely identifies each row              | `id INT PRIMARY KEY`                              |
+| **FOREIGN KEY** | Enforces referential integrity            | `FOREIGN KEY (dept_id) REFERENCES department(id)` |
+| **UNIQUE**      | Ensures all values in a column are unique | `email VARCHAR(100) UNIQUE`                       |
+| **CHECK**       | Restricts allowed values                  | `CHECK (salary > 0)`                              |
+| **NOT NULL**    | Prevents null values                      | `name VARCHAR(50) NOT NULL`                       |
+| **DEFAULT**     | Assigns default value if none given       | `status VARCHAR(10) DEFAULT 'Active'`             |
+
+
+
+
+Summary:
+| Concept              | Returns Value      | Triggered By                  | Use Case                   | Has Types                            |
+| -------------------- | ------------------ | ----------------------------- | -------------------------- | ------------------------------------ |
+| **Stored Procedure** | Optional (via OUT) | Manually called               | Automate logic (batch ops) | ✅ IN, OUT, INOUT                     |
+| **Trigger**          | ❌ No               | DML events                    | Audit, validation          | ✅ Before/After, Insert/Update/Delete |
+| **View**             | ❌ (virtual table)  | Manual SELECT                 | Simplify complex queries   | ✅ Simple, Complex                    |
+| **Function**         | ✅ Yes              | Manual call / SELECT          | Reusable calculation       | ✅ Scalar, Table-valued               |
+| **Constraint**       | ❌ No               | Implicit during insert/update | Enforce integrity          | ✅ PK, FK, Unique, etc.               |
+
+
+
+| Feature                                   | **Stored Procedure (SP)**                                                  | **Function (UDF - User Defined Function)**           |
+| ----------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **Purpose**                               | Performs **a set of actions** (insert/update/delete, calculations, logic). | Performs **a computation** and **returns a value**.  |
+| **Return type**                           | Can **return none or many values** (via OUT parameters or SELECT).         | Must **return exactly one value** (scalar or table). |
+| **Call syntax**                           | Called with `CALL procedure_name(...)`                                     | Used inside queries like `SELECT function_name(...)` |
+| **Usage inside SQL**                      | ❌ Cannot be used inside `SELECT` / `WHERE` directly.                       | ✅ Can be used inside any SQL query or expression.    |
+| **Transaction control**                   | ✅ Can use `COMMIT`, `ROLLBACK`, `SAVEPOINT`.                               | ❌ Cannot use transaction control statements.         |
+| **DML operations (INSERT/UPDATE/DELETE)** | ✅ Allowed                                                                  | ⚠️ Usually **not allowed** (depends on DB).          |
+| **Return keyword**                        | `RETURN` optional — use `OUT` or `SELECT`                                  | `RETURN` mandatory — must return one value.          |
+| **Performance**                           | Slightly heavier (used for tasks)                                          | Lightweight (used for computations)                  |
+| **Use case**                              | Business logic, batch operations, data modification                        | Calculations, reusable logic inside SELECTs          |
+| **Example call**                          | `CALL calculate_bonus(101, @total);`                                       | `SELECT calculate_bonus(101);`                       |
+
+| Feature              | **Constraint**                                                                                       | **Trigger**                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Definition**       | A **rule** defined on a table column to enforce data integrity automatically by the database engine. | A **programmatic action** that automatically executes when a specified database event (INSERT/UPDATE/DELETE) occurs. |
+| **Purpose**          | Prevent invalid or inconsistent data from entering the table.                                        | Perform additional tasks *after or before* a data change happens.                                                    |
+| **When it executes** | Automatically during the DML operation (before data is committed).                                   | Automatically fired **before or after** the DML event.                                                               |
+| **Scope**            | Column-level or table-level data validation.                                                         | Table-level event-driven logic.                                                                                      |
+| **Control type**     | Declarative — defined by rules (no custom code).                                                     | Procedural — defined by SQL logic (custom code).                                                                     |
+| **Used for**         | Enforcing **data integrity** (e.g., `salary > 0`, `NOT NULL`, `FOREIGN KEY`).                        | Enforcing **business logic**, auditing, or maintaining logs.                                                         |
+| **Database impact**  | Lightweight, automatically checked by DB engine.                                                     | Slightly heavier — executes a block of SQL code each time it fires.                                                  |
+| **Can modify data?** | ❌ No (just prevents invalid data).                                                                   | ✅ Yes — can insert, update, delete other records automatically.                                                      |
+| **Error handling**   | Violations throw constraint errors (rollback).                                                       | You can handle logic, raise errors, or modify data inside trigger.                                                   |
+| **Example use case** | Prevent a salary from being negative.                                                                | Log all salary updates into an audit table.                                                                          |
+
