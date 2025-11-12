@@ -1,0 +1,36 @@
+#Top 2 Highest Salaries per Department
+With top_2_salaries as (
+Select emp_id,emp_name,dept_name,salary,hire_date,
+RANK() OVER(PARTITION BY dept_name ORDER BY Salary desc) as rnk
+from employees)
+select emp_name,dept_name,salary,rnk   from top_2_salaries
+where rnk <=2 order by dept_name,salary desc;
+
+----------------------------
+#Employee Salary Rank within Department
+Select emp_name,dept_name,salary,
+RANK() OVER(PARTITION BY dept_name ORDER BY Salary desc) as rnk
+from employees
+
+--------------------------
+#Prev_salary,Salary diff from prev employee
+Select emp_name,dept_name,salary,
+LAG(salary) OVER (PARTITION BY dept_name ORDER BY salary desc) as Prev_salary,
+salary - LAG(salary) OVER (PARTITION BY dept_name ORDER BY salary desc) as diff_from_prev_salary
+from employees
+order by dept_name,salary desc;
+
+-----------------------
+#Running total of salaries by hire date (overall or by department)
+#Overall running total:
+select emp_name,hire_date,salary,
+Sum(salary) OVER (ORDER BY hire_date) as Running_Salary
+from employees
+order by hire_date;
+----------------------
+
+#Running salary total by dept
+select emp_name,dept_name,hire_date,salary,
+Sum(salary) OVER (PARTITION BY dept_name ORDER BY hire_date) as Running_Salary
+from employees
+order by dept_name,hire_date;
