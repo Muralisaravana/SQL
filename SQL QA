@@ -1,0 +1,277 @@
+1.What is SQL?
+SQL (Structured Query Language) is a language for querying and manipulating relational databases. It supports DDL, DML, DCL and TCL.
+
+2.What are the main types of SQL statements?
+DDL (CREATE, ALTER, DROP),
+DML (SELECT, INSERT, UPDATE, DELETE), 
+DCL (GRANT, REVOKE), 
+TCL (COMMIT, ROLLBACK).
+
+3.What is the difference between WHERE and HAVING?
+WHERE filters rows before grouping/aggregation; HAVING filters after aggregation.
+
+4.Explain JOIN types (INNER, LEFT, RIGHT, FULL).
+INNER JOIN: rows matched in both tables.
+LEFT JOIN: all left table rows + matched right rows (NULL if no match).
+RIGHT JOIN: all right table rows + matched left rows.
+FULL JOIN: all rows from both tables, matched where possible (NULLs otherwise).
+
+5.What is a primary key vs a unique key?
+Primary key: uniquely identifies rows, not null, one per table.
+Unique key: enforces uniqueness, can be nullable, multiple per table
+
+6.What is normalization? Name 1NF, 2NF, 3NF briefly.
+Normalization means organizing data into proper tables so:
+There are no duplicates
+Data is clean and consistent
+Storage is saved
+Changes become easier
+
+1NF (First Normal Form) — “No messy data”
+In databases:
+Every column should have one value only (no lists or groups inside a cell).
+Each record must be unique.
+
+2NF (Second Normal Form) — “Don’t repeat things unnecessarily”
+In databases:
+Data should not depend only on part of a key.
+Remove repeated groups into separate tables.
+
+3NF (Third Normal Form) — “Keep only what is directly related”
+Example:
+If your contact list stores:
+Person name
+Phone number
+City
+State (but state depends on city)
+State is not directly related to the person… it depends on City.
+So move city–state info into another table.
+In databases:
+Columns should depend ONLY on the primary key, not on other columns.
+
+7.What is denormalization and when to use it?
+Denormalization is the opposite of normalization.
+If normalization is like keeping items in separate organized boxes,
+then denormalization is keeping related items together in one box for quick access.
+
+Denormalization means intentionally adding redundant data to improve read performance at the cost of storage and write complexity.
+
+Use denormalization when:
+1. You need faster read queries
+E.g., a report that reads from 5 tables — instead, you create one summary table.
+2. Your system is read-heavy (more SELECTs than INSERT/UPDATE)
+Dashboards
+Analytics
+Data warehouses
+3. Joins are too slow
+If joining many tables causes performance issues → denormalize.
+ 4. Pre-calculated or aggregated data is needed
+Save total_order_amount in the orders table
+Instead of calculating it every time from order items.
+
+8.What is an index and how does it help?
+An index is a data structure that helps the database quickly find rows, improving query performance while slightly slowing down write operations.
+
+9.What is the difference between clustered and non-clustered index?
+Clustered Index:
+A clustered index sorts the actual table rows
+There can be only ONE clustered index per table
+It decides the physical order of data
+Clustered index = table is stored in sorted order.
+
+Non-Clustered Index (NCI):
+A non-clustered index stores pointers to the actual table rows
+Does not change the table’s physical order
+You can have multiple non-clustered indexes
+Non-clustered index = separate list that points to the actual data.
+
+10.What is an execution plan?
+The DB engine’s plan for executing a query (shows join order, index usage). Use EXPLAIN/EXPLAIN ANALYZE to view it.
+An execution plan is the step-by-step path the database chooses to run a query, showing how data will be accessed and which indexes or operations will be used.
+
+11.What is a correlated subquery?
+A correlated subquery is a subquery that uses values from the outer query and therefore runs once for every row of the outer query.
+
+12.EXISTS vs IN — which to use?
+Use IN for small lists of values, and use EXISTS for checking the existence of rows—especially when dealing with large datasets.
+
+EXISTS stops as soon as it finds one matching row → faster for big data
+IN loads all values first → can be slower for large lists
+
+13.What is a window function? Give an example
+A window function performs calculations across a set of rows related to the current row, without collapsing the rows like GROUP BY.
+
+e.g.,
+SELECT 
+    name,
+    department,
+    salary,
+    AVG(salary) OVER (PARTITION BY department) AS dept_avg_salary
+FROM employees;
+
+14.Difference between ROW_NUMBER(), RANK(), and DENSE_RANK().
+ROW_NUMBER():
+Gives a unique number to each row without any gaps.
+Even if two rows have the same value, it still gives different numbers
+
+RANK()
+Gives the same rank for ties,
+but then jumps (skips) the next rank.
+
+DENSE_RANK()
+Gives same rank for ties,
+but does not skip the next rank.
+
+15.How to get top-N per group?
+SELECT id, name, department, salary
+FROM (
+  SELECT *,
+         ROW_NUMBER() OVER (PARTITION BY department
+                            ORDER BY salary DESC) AS rn
+  FROM employees
+) t
+WHERE rn <= 3;  -- top 3 per department
+
+16.What’s the difference between UNION and UNION ALL?
+UNION removes duplicates and is slower; UNION ALL keeps duplicates and is faster.
+| Feature             | UNION                               | UNION ALL                                 |
+| ------------------- | ----------------------------------- | ----------------------------------------- |
+| Removes duplicates? | ✔ Yes                               | ❌ No                                    |
+| Speed               | Slower                              | Faster                                    |
+| Sorting involved?   | Yes (internally removes duplicates) | No                                        |
+| When to use?        | When duplicates should be removed   | When speed matters and duplicates allowed |
+
+17.What is transaction and ACID properties?
+A transaction is a safe unit of work that ensures data remains correct even if errors happen.
+
+ACID ensures a transaction is safe, reliable, and consistent.
+A – Atomicity
+ “All or nothing.”
+Either the entire transaction happens, or nothing happens.
+Example:
+Money deducted from your account but not added to receiver → this must never happen
+
+C – Consistency
+“Data must always remain valid.”
+After a transaction, the database must be in a correct state.
+Example:
+You cannot have a negative movie seat count.
+Rules are never broken.
+
+I – Isolation
+ “Transactions should not disturb each other.”
+Two people booking the last seat at the same time should not both succeed.
+Each transaction behaves as if it’s running alone.
+
+D – Durability
+“Once committed, it will not be lost.”
+Even if the system crashes or power goes off, committed data stays safe.
+
+18.Name transaction isolation levels and a phenomenon each prevents
+| Isolation Level      | Prevents                       | Allows                         |
+| -------------------- | ------------------------------ | ------------------------------ |
+| **Read Uncommitted** | —                              | Dirty, Non-repeatable, Phantom |
+| **Read Committed**   | Dirty                          | Non-repeatable, Phantom        |
+| **Repeatable Read**  | Dirty, Non-repeatable          | Phantom                        |
+| **Serializable**     | Dirty, Non-repeatable, Phantom | —                              |
+
+19.What causes deadlocks and how to mitigate them?
+A deadlock happens when two transactions are waiting for each other’s lock, and neither can move forward.
+Prevent them by accessing resources in the same order, keeping transactions short, using proper indexes, and adding retry logic.
+
+20.What is a common strategy for performance tuning?
+The common strategy is: measure first using execution plans, optimize the query, add proper indexes, 
+reduce scans & unnecessary work, optimize schema, apply caching, and finally scale the hardware if needed.
+
+21.How to handle NULLs in aggregates?
+Aggregate functions ignore NULLs by default (except COUNT*). You can use COALESCE or CASE to control how NULLs are treated.
+Use COALESCE(col, 0) to treat NULL as 0.
+
+22.COUNT(*) vs COUNT(col)?
+COUNT(*) counts every row; COUNT(column) only counts rows where that column is NOT NULL.
+| Function          | Counts NULLs? | What it counts                      |
+| ----------------- | ------------- | ----------------------------------- |
+| **COUNT(*)**      | ✔ Yes         | ALL rows                            |
+| **COUNT(column)** | ❌ No          | Only non-NULL values in that column |
+
+23.What is a materialized view vs a view?
+A view is a virtual table that runs the query every time; 
+a materialized view stores the query result physically for faster reads and must be refreshed to stay up-to-date.
+| Feature            | View                          | Materialized View                  |
+| ------------------ | ----------------------------- | ---------------------------------- |
+| Stores data?       | ❌ No                          | ✔ Yes                              |
+| Query performance  | Slower (runs query each time) | Faster (precomputed)               |
+| Always fresh data? | ✔ Yes                         | ❌ No (needs refresh)               |
+| Storage used       | Very little                   | More storage                       |
+| Use case           | Simple, real-time data        | Heavy queries, dashboards, reports |
+
+24.Explain GROUP BY and non-aggregated columns (SQL standard).
+GROUP BY is used to combine rows that have the same value in one or more columns, so you can apply aggregate functions like:
+SUM
+COUNT
+AVG
+MIN / MAX
+
+Every column in the SELECT clause must either:
+Be part of GROUP BY, OR
+Be inside an aggregate function (SUM, COUNT, etc.)
+
+25.When would you use CTE (WITH) vs subquery?
+Use a CTE for readability, reuse, and recursion; use a subquery for simple, one-time, inline filtering.
+| Use Case             | CTE (WITH)                       | Subquery                        |
+| -------------------- | -------------------------------- | ------------------------------- |
+| Readability          | ✔ Better                         | Okay                            |
+| Reuse same logic     | ✔ Yes                            | ❌ No                           |
+| Recursion            | ✔ Yes                            | ❌ No                           |
+| Complex queries      | ✔ Strong                         | Hard                             |
+| Simple one-off query | ❌ Overkill                       | ✔ Best                         |
+| Performance          | Sometimes slower (depends on DB) | Often faster / better optimized  |
+
+26.What are constraints and types?
+Constraints are rules that ensure data validity. Common types are PRIMARY KEY, UNIQUE, NOT NULL, FOREIGN KEY, CHECK, and DEFAULT.
+
+27.What is normalization tradeoff in OLTP vs OLAP?
+OLTP uses normalization for data integrity and fast writes, while OLAP uses denormalization for fast reads and reporting.
+
+28.How to paginate results?
+Use LIMIT/OFFSET (or keyset pagination for large offset):
+SELECT * FROM t ORDER BY id LIMIT 50 OFFSET 100;
+
+OFFSET 100 means: skip the first 100 rows of the sorted result.
+LIMIT 50 means: after skipping, return the next 50 rows.
+
+29.What is keyset (cursor) pagination?
+Instead of OFFSET, use WHERE (id > last_id) ORDER BY id LIMIT n — better for large pages and performance.
+
+30.How to find duplicate rows?
+SELECT col1, col2, COUNT(*) cnt
+FROM t
+GROUP BY col1, col2
+HAVING COUNT(*) > 1;
+
+31.How to delete duplicates while keeping one row?
+WITH cte AS (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY col1, col2 ORDER BY id) rn
+  FROM t
+)
+DELETE FROM t WHERE id IN (SELECT id FROM cte WHERE rn > 1);
+
+32.Explain MERGE (or upsert).
+MERGE (also called UPSERT) is used to Insert if the row does not exist,
+and Update if the row already exists,
+in one single statement.
+
+33.What is ACID vs BASE?
+ACID ensures strict consistency and correctness;
+BASE sacrifices immediate consistency to achieve high availability and scalability in distributed systems
+
+34.What are common pitfalls with NULL in joins and predicates?
+NULL comparisons are unknown. Use IS NULL / IS NOT NULL or COALESCE and be careful with LEFT JOIN when moving conditions to WHERE (may filter out NULL rows)
+
+35.How to convert rows into columns (pivot) and vice versa (unpivot)?
+SELECT id,
+  SUM(CASE WHEN month = 'Jan' THEN amount ELSE 0 END) jan,
+  SUM(CASE WHEN month = 'Feb' THEN amount ELSE 0 END) feb
+FROM sales GROUP BY id;
+
+
