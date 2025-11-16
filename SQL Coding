@@ -1,0 +1,168 @@
+1.Write an SQL query to list all employees with salary greater than 50,000,
+sorted by salary descending.
+select * from employees where salary > 50000 order by salary desc;
+Using Window functions:
+SELECT id, name, dept, salary
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (ORDER BY salary DESC) AS rn
+    FROM employees
+) t
+WHERE salary > 50000
+ORDER BY rn;
+
+2.Write an SQL query to:
+Show each product
+Total amount sold per product (SUM(amount))
+Number of transactions per product (COUNT(*))
+Sort results by total amount descending
+
+SELECT product,
+       SUM(amount) AS total_sales,
+       COUNT(*) AS cnt
+FROM sales
+GROUP BY product
+ORDER BY total_sales DESC;
+Using window function
+SELECT DISTINCT
+       product,
+       SUM(amount) OVER (PARTITION BY product) AS total_sales,
+       COUNT(*) OVER (PARTITION BY product) AS cnt
+FROM sales
+ORDER BY total_sales DESC;
+
+3.Write an SQL query to show:
+customer name
+order id
+order total
+Only for customers who exist in the customers table
+Sort output by customer name and order id.
+
+select c.name, o.id,o.total from customers c 
+inner join orders  o on c.id =o.customer_id
+order by c.name,o.id; 
+Using Window functions:
+SELECT name, order_id, total
+FROM (
+    SELECT 
+        c.name,
+        o.id AS order_id,
+        o.total,
+        ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY o.id) AS rn
+    FROM customers c
+    JOIN orders o ON c.id = o.customer_id
+) t
+ORDER BY name, order_id;
+
+4.Write an SQL query to fetch:
+employee with the highest salary from each department
+Sort the final output by dept.
+
+Select id,name,dept,salary
+from(select *,
+row_number() over (partition by dept order by salary desc) as rn
+from employees
+) e
+where rn =1
+ORDER BY dept;
+
+5.Write an SQL query to return distinct customer_id values for customers who have at least one order with total greater than the overall average order total.
+First compute the overall average order total across all orders.
+Then return the customer_ids that have any order with total > overall_avg.
+SELECT DISTINCT customer_id
+FROM orders o
+WHERE total > (SELECT AVG(total) FROM orders);
+Using Window Functions:
+SELECT DISTINCT customer_id
+FROM (
+  SELECT customer_id,
+         total,
+         AVG(total) OVER () AS overall_avg
+  FROM orders
+) o
+WHERE total > overall_avg
+ORDER BY customer_id;
+
+6.Write an SQL query to delete duplicate rows, keeping only:
+the record with the lowest id
+for each unique email + visit_date pair
+use a window function (ROW_NUMBER)
+
+DELETE FROM visits
+WHERE id IN (
+    SELECT id
+    FROM (
+        SELECT id,
+               ROW_NUMBER() OVER (PARTITION BY email, visit_date ORDER BY id) AS rn
+        FROM visits
+    ) t
+    WHERE rn > 1
+);
+
+7.Write an SQL query that returns one row per product with columns for Jan and Feb totals:
+product
+Jan (sum of amount where month = 'Jan')
+Feb (sum of amount where month = 'Feb')
+Sort results by product.
+SELECT 
+    product,
+    SUM(CASE WHEN month = 'Jan' THEN amount ELSE 0 END) AS Jan,
+    SUM(CASE WHEN month = 'Feb' THEN amount ELSE 0 END) AS Feb
+FROM sales
+GROUP BY product
+ORDER BY product;
+
+8.Write a query to return all products that have at least one order
+(i.e., product exists in order_items).
+Use EXISTS (not JOIN).
+Sort by product id.
+
+select * from products p
+where  
+exists(select 1 from order_items oi where oi.product_id = p.id);
+
+Using Window functions in Presto DB:
+SELECT id, name
+FROM (
+    SELECT 
+        p.id,
+        p.name,
+        ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY oi.id) AS rn
+    FROM products p
+    LEFT JOIN order_items oi 
+        ON p.id = oi.product_id
+) t
+QUALIFY rn >= 1   -- keep rows that have at least 1 match
+ORDER BY id;
+
+9.Write a query that returns the next 10 rows after last_seen_id = 30 using keyset pagination (no OFFSET)
+SELECT *
+FROM items
+WHERE id > 30
+ORDER BY id
+LIMIT 10;
+Using Windows function
+Select id,name from
+(Select *,row_number() over (order by id) as rn from items) i
+WHERE rn BETWEEN 31 AND 40;
+
+10.Write a query that returns:
+sale_date
+amount
+running_total — cumulative sum of amount ordered by sale_date (each row shows the sum of this and all prior rows)
+Sort results by sale_date.
+SELECT 
+    sale_date,
+    amount,
+    SUM(amount) OVER (ORDER BY sale_date) AS running_total
+FROM daily_sales
+ORDER BY sale_date;
+(OR)
+SELECT 
+    sale_date,
+    amount,
+    SUM(amount) OVER (ORDER BY sale_date
+                      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total
+FROM daily_sales
+ORDER BY sale_date;
+
