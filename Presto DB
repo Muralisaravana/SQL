@@ -1,0 +1,111 @@
+1. What is Presto?
+Presto is a distributed SQL query engine used for fast analytics.
+It can query multiple data sources (Hive, MySQL, Kafka, S3, etc.) using federated queries.
+It is not a database; it does not store data.
+
+2. How is Presto different from a traditional database?
+Presto does not store data → only processes queries.
+It’s massively parallel → splits query into tasks/workers.
+Best for OLAP / analytical workloads, not OLTP.
+Can join data across multiple systems (example: join MySQL table with Hive table).
+
+3. What are Presto’s main components?
+Coordinator – parses query, creates execution plan, assigns tasks.
+Workers – execute tasks and scan data.
+Connectors – plug-ins that allow access to different data sources.
+Catalog – configuration file that defines a connector & its properties.
+Schema – like a database inside the catalog.
+
+4. What is a Catalog & Schema in Presto?
+Catalog = configuration that connects to a data source (e.g. hive, mysql, kafka).
+Schema = database inside that catalog.
+Table = actual table inside schema.
+
+SELECT * FROM hive.sales.orders;
+hive → catalog
+sales → schema
+orders → table
+
+5. Can Presto join tables from different systems?
+Yes
+Example:
+SELECT a.id, b.amount
+FROM mysql.db.customers a
+JOIN hive.sales.transactions b
+ON a.id = b.customer_id;
+
+6. What types of workloads is Presto suitable for?
+Large analytics queries
+BI dashboards
+Ad-hoc interactive queries
+Reporting
+Data lake queries
+Not suitable for:
+High rate inserts/updates
+OLTP transactional workloads
+
+7. How does Presto achieve high performance?
+MPP (Massively Parallel Processing)
+In-memory processing
+Splits queries into tasks across worker nodes
+Predicate pushdown
+Columnar formats (Parquet/ORC)
+
+8. What file formats work best with Presto?
+ORC
+Parquet
+Because they support:
+Columnar storage
+Compression
+Predicate pushdown
+
+CSV/JSON = slower
+ORC/Parquet = best performance
+
+9. What is Predicate Pushdown?
+Presto tries to push filters to the data source so less data is scanned.
+Example:
+SELECT * FROM table WHERE date = '2024-01-01';
+
+Presto will try to let Hive / S3 / MySQL filter instead of filtering on workers.
+
+10. How does Presto handle large joins?
+Broadcast join (small table copied to all workers)
+Partitioned join (big-big joins)
+Automatic join strategy selection
+
+11. Explain a Presto query lifecycle
+Coordinator parses SQL
+Creates execution plan
+Workers read data from connectors
+Workers process in parallel
+Results return to coordinator
+Sent to client
+
+12. What is the difference between Presto and Hive?
+| Feature   | Presto                    | Hive                     |
+| --------- | ------------------------- | ------------------------ |
+| Purpose   | Fast SQL engine           | ETL + query engine       |
+| Speed     | Much faster for analytics | Slower (MapReduce / Tez) |
+| Storage   | None                      | Uses HDFS/S3             |
+| Use cases | BI, dashboards, ad hoc    | Batch ETL                |
+
+13. Basic SQL questions with a "Presto twist"
+a) How to get top-N per group?
+SELECT *
+FROM (
+  SELECT *, row_number() OVER (PARTITION BY category ORDER BY sales DESC) AS rn
+  FROM products
+)
+WHERE rn = 1;
+
+b) How to check Presto version?
+SELECT version();
+
+c) How to show all catalogs?
+SHOW CATALOGS;
+
+d) Show schemas in a catalog
+SHOW SCHEMAS FROM hive;
+
+
