@@ -44,8 +44,8 @@ ALTER TABLE employees
 DROP COLUMN hire_date;
 
 Rename Table:
-ALTER TABLE employees
-DROP COLUMN hire_date;
+ALTER TABLE employees RENAME TO staff;
+
 
 
 
